@@ -1,6 +1,7 @@
 'use client';
 import { CircleHelp, User, UserCog, UserX } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation';
 import { ModeToggle } from "../components/toggle";
 import Logo from '../imgs/reports__4_-removebg-preview.png';
 import { UsuarioService } from "../../../service/Service";
@@ -92,7 +93,7 @@ export default function Inicio() {
   const [motivoCancelamento, setMotivoCancelamento] = useState('');
   const [origemCancelamento, setOrigemCancelamento] = useState('');
   const [isGerente, setIsGerente] = useState(false);
-
+const router = useRouter();
   useEffect(() => {
     const userRole = localStorage.getItem('role');
     if (userRole === 'Gerente') {
@@ -166,7 +167,13 @@ export default function Inicio() {
         });
     }
   };
-
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('cpf');
+    localStorage.removeItem('user');
+    router.push('/');
+  };
   return (
     <div className="flex flex-col h-full bg-gray-100 dark:bg-gray-800 dark:text-white">
       <nav className="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
@@ -183,10 +190,7 @@ export default function Inicio() {
                 </li>
               )}
               <li>
-                <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><CircleHelp className="mr-2" />Ajuda</a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><UserX className="mr-2" />Encerrar Sessão</a>
+                <button onClick={handleLogout} className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><UserX className="mr-2" />Encerrar Sessão</button>
               </li>
               <li>
                 <ModeToggle />
