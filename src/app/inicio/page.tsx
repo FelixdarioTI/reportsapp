@@ -1,5 +1,5 @@
 'use client';
-import { CircleHelp, User, UserCog, UserX } from "lucide-react";
+import { UserCog, UserX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { ModeToggle } from "../components/toggle";
