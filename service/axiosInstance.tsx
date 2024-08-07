@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const axiosInstance = axios.create({
-  baseURL: 'https://testing-bnereports.bne.com.br/api',
+  baseURL: 'https://testing-apibnereports.bne.com.br/api',
 });
 
 axiosInstance.interceptors.request.use(config => {

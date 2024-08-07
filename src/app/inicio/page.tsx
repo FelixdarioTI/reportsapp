@@ -157,7 +157,7 @@ const router = useRouter();
         motivoCancelamento,
         origemCancelamento
       };
-      axios.post('https://testing-bnereports.bne.com.br/ReportsBNE/PlanoMotivoCancelamento/EditarPlanoMotivoCancelamento', data)
+      axios.post('https://testing-apibnereports.bne.com.br/ReportsBNE/PlanoMotivoCancelamento/EditarPlanoMotivoCancelamento', data)
         .then(response => {
           console.log("Resposta da API:", response.data);
           setisModalOpen2(false);

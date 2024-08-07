@@ -7,7 +7,7 @@ export class UsuarioService {
 
   fetchPlanosCancelados(page: number, p0: number) {
     const token = localStorage.getItem('token'); 
-    return axiosInstance.get('https://testing-bnereports.bne.com.br/ReportsBNE/PlanoMotivoCancelamento/ListarPlanoCancelados', {
+    return axiosInstance.get('https://testing-apibnereports.bne.com.br/ReportsBNE/PlanoMotivoCancelamento/ListarPlanoCancelados', {
       headers: {
         Authorization: `Bearer ${token}`
       }
