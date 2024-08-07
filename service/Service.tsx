@@ -4,7 +4,7 @@ export class UsuarioService {
   login(credentials: { email: string; cpf: string; }) {
     return axiosInstance.post('/Atendentes/Login', credentials);
   }
-
+  
   fetchPlanosCancelados(page: number, p0: number) {
     const token = localStorage.getItem('token'); 
     return axiosInstance.get('https://testing-apibnereports.bne.com.br/ReportsBNE/PlanoMotivoCancelamento/ListarPlanoCancelados', {
@@ -13,7 +13,9 @@ export class UsuarioService {
       }
     });
   }
-  
+  editarPlanoMotivoCancelamento(data: { id: number; cpfAtendente: string; des_MotivoCancelamento: string; idf_OrigemMotivoCancelamento: number; }) {
+    return axiosInstance.post('https://testing-apibnereports.bne.com.br/ReportsBNE/PlanoMotivoCancelamento/EditarPlanoMotivoCancelamento', data);
+  }
   fetchAtendentes() {
     const token = localStorage.getItem('token'); 
     return axiosInstance.get('/Atendentes/ListarAtendentes', {

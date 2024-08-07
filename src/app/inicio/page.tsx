@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { ModeToggle } from "../components/toggle";
 import Logo from '../imgs/reports__4_-removebg-preview.png';
 import { UsuarioService } from "../../../service/Service";
-import axios from 'axios';
 
 const usuarioService = new UsuarioService();
 
@@ -65,7 +64,11 @@ interface PlanoCancelado {
     dataCancelamento: string;
     dataFimPlano: string;
     dataCadastro: string;
-    idf_UsuarioFilialPerfil: {
+    idf_PlanoSituacao: number;
+    plano: {
+      des_Plano: string; 
+    }
+    usuarioFilialPerfil: {
       pessoaFisica: {
         idf_PessoaFisica: string;
         nome: string;
@@ -73,7 +76,6 @@ interface PlanoCancelado {
         cpf: string;
       };
     };
-    idf_PlanoSituacao: number;
   };
   motivoCancelamento: {
     des_MotivoCancelamento: string;
@@ -93,7 +95,8 @@ export default function Inicio() {
   const [motivoCancelamento, setMotivoCancelamento] = useState('');
   const [origemCancelamento, setOrigemCancelamento] = useState('');
   const [isGerente, setIsGerente] = useState(false);
-const router = useRouter();
+  const router = useRouter();
+
   useEffect(() => {
     const userRole = localStorage.getItem('role');
     if (userRole === 'Gerente') {
@@ -153,11 +156,11 @@ const router = useRouter();
     if (selectedPlano) {
       const data = {
         id: selectedPlano.idf_PlanoMotivoCancelamento,
-        cpf: localStorage.getItem('cpf') || '', 
-        motivoCancelamento,
-        origemCancelamento
+        cpfAtendente: localStorage.getItem('cpf') || '',
+        des_MotivoCancelamento: motivoCancelamentoMap[parseInt(motivoCancelamento)],
+        idf_OrigemMotivoCancelamento: parseInt(origemCancelamento)
       };
-      axios.post('https://testing-apibnereports.bne.com.br/ReportsBNE/PlanoMotivoCancelamento/EditarPlanoMotivoCancelamento', data)
+      usuarioService.editarPlanoMotivoCancelamento(data)
         .then(response => {
           console.log("Resposta da API:", response.data);
           setisModalOpen2(false);
@@ -167,6 +170,7 @@ const router = useRouter();
         });
     }
   };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
@@ -174,6 +178,7 @@ const router = useRouter();
     localStorage.removeItem('user');
     router.push('/');
   };
+
   return (
     <div className="flex flex-col h-full bg-gray-100 dark:bg-gray-800 dark:text-white">
       <nav className="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
@@ -219,7 +224,7 @@ const router = useRouter();
                       <table className="w-full my-0 align-middle text-dark border-neutral-200 dark:bg-gray-900 dark:text-white">
                         <thead className="align-bottom">
                           <tr className="font-semibold text-[0.95rem] text-secondary-dark">
-                            <th className="pb-3 text-center min-w-fit">Data de Nascimento</th>
+                            <th className="pb-3 text-center min-w-fit">Data de Cancelamento</th>
                             <th className="pb-3 text-center min-w-fit">Protocolo</th>
                             <th className="pb-3 text-center min-w-fit">Origem</th>
                             <th className="pb-3 text-center min-w-fit">Cancelado Por</th>
@@ -254,13 +259,13 @@ const router = useRouter();
                                 <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{plano.nme_Atendente || "N/A"}</span>
                               </td>
                               <td className="pr-0 text-center">
-                                <span className="font-semibold text-light-inverse text-md/normal">{plano.planoAdquirido.idf_UsuarioFilialPerfil?.pessoaFisica?.nome || "N/A"}</span>
+                                <span className="font-semibold text-light-inverse text-md/normal">{plano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.nome || "N/A"}</span>
                               </td>
                               <td className="p-3 pr-0 text-center">
-                                <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{plano.planoAdquirido.idf_UsuarioFilialPerfil?.pessoaFisica?.email || "N/A"}</span>
+                                <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{plano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.email || "N/A"}</span>
                               </td>
                               <td className="p-3 pr-0 text-center">
-                                <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{plano.planoAdquirido.idf_UsuarioFilialPerfil?.pessoaFisica?.cpf || "N/A"}</span>
+                                <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{plano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.cpf || "N/A"}</span>
                               </td>
                               <td className="p-3 pr-0 text-center">
                                 <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{planoSituacaoMap[plano.planoAdquirido?.idf_PlanoSituacao] || "N/A"}</span>
@@ -354,13 +359,13 @@ const router = useRouter();
                 <p>Data de Cancelamento do Plano: {selectedPlano.planoAdquirido?.dataCancelamento || "N/A"}</p>
                 <p>Data de fim do plano: {selectedPlano.planoAdquirido?.dataFimPlano || "N/A"}</p>
                 <p>Cancelado Por: {selectedPlano.nme_Atendente || "N/A"}</p>
-                <p>Nome do Candidato: {selectedPlano.planoAdquirido.idf_UsuarioFilialPerfil?.pessoaFisica?.nome || "N/A"}</p>
-                <p>Email do Candidato: {selectedPlano.planoAdquirido.idf_UsuarioFilialPerfil?.pessoaFisica?.email || "N/A"}</p>
-                <p>CPF do Candidato: {selectedPlano.planoAdquirido.idf_UsuarioFilialPerfil?.pessoaFisica?.cpf || "N/A"}</p>
+                <p>Nome do Candidato: {selectedPlano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.nome || "N/A"}</p>
+                <p>Email do Candidato: {selectedPlano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.email || "N/A"}</p>
+                <p>CPF do Candidato: {selectedPlano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.cpf || "N/A"}</p>
                 <p>Motivo Cancelamento: {selectedPlano.motivoCancelamento?.des_MotivoCancelamento || "N/A"}</p>
                 <p>Detalhe do motivo de Cancelamento: {selectedPlano?.des_DetalheMotivoCancelamento || "N/A"}</p>
                 <p>Situação do Plano: {planoSituacaoMap[selectedPlano.planoAdquirido?.idf_PlanoSituacao] || "N/A"}</p>
-                <p>Descrição do Plano: {selectedPlano.planoAdquirido?.idf_Plano || "N/A"}</p>
+                <p>Descrição do Plano: {selectedPlano.planoAdquirido.plano?.des_Plano || "N/A"}</p>
                 <button className="cursor-pointer absolute top-0 right-0 mt-4 mr-5 text-gray-400 hover:text-gray-600 transition duration-150 ease-in-out rounded focus:ring-2 focus:outline-none focus:ring-gray-600" aria-label="close modal" role="button" onClick={() => setisModalOpen1(false)}>
                   <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-x" width="20" height="20" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" />
