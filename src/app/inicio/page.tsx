@@ -1,10 +1,10 @@
 'use client';
-import { UserCog, UserX } from "lucide-react";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ModeToggle } from "../components/toggle";
+import { Search, UserCog, UserX } from 'lucide-react';
+import { ModeToggle } from '../components/toggle';
 import Logo from '../imgs/reports__4_-removebg-preview.png';
-import { UsuarioService } from "../../../service/Service";
+import { UsuarioService } from '../../../service/Service';
 
 const usuarioService = new UsuarioService();
 
@@ -14,7 +14,7 @@ const origemMotivoCancelamentoMap: { [key: number]: string } = {
   3: 'Email',
   4: 'RA',
   5: 'Crisp',
-  6: 'Outros'
+  6: 'Outros',
 };
 
 const motivoCancelamentoMap: { [key: number]: string } = {
@@ -38,7 +38,7 @@ const motivoCancelamentoMap: { [key: number]: string } = {
   18: 'Outros',
   19: 'Já consegui um emprego pelo BNE',
   20: 'Já consegui um emprego por indicação',
-  21: 'Já consegui um emprego por outra ferramenta'
+  21: 'Já consegui um emprego por outra ferramenta',
 };
 
 const planoSituacaoMap: { [key: number]: string } = {
@@ -49,7 +49,7 @@ const planoSituacaoMap: { [key: number]: string } = {
   4: 'Bloqueado',
   5: 'Liberação Futura',
   6: 'Liberação Automática',
-  7: 'Congelado'
+  7: 'Congelado',
 };
 
 interface PlanoCancelado {
@@ -66,8 +66,8 @@ interface PlanoCancelado {
     dataCadastro: string;
     idf_PlanoSituacao: number;
     plano: {
-      des_Plano: string; 
-    }
+      des_Plano: string;
+    };
     usuarioFilialPerfil: {
       pessoaFisica: {
         idf_PessoaFisica: string;
@@ -84,9 +84,186 @@ interface PlanoCancelado {
   };
 }
 
+const ModalPesquisa: FC<{
+  onClose: () => void;
+  onPesquisar: (filtros: any) => void;
+}> = ({ onClose, onPesquisar }) => {
+  const [filtros, setFiltros] = useState({
+    cpf: '',
+    nomeUsuario: '',
+    protocolo: '',
+    canceladoPor: '',
+    ordenarPorRecente: true,
+    motivoCancelamento: 0,
+    situacaoPlano: 0,
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFiltros((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmitPesquisar = (e: React.FormEvent) => {
+    e.preventDefault();
+    const filtrosPreenchidos = Object.fromEntries(
+      Object.entries(filtros).filter(([_, v]) => v !== '' && v !== 0)
+    );
+    onPesquisar(filtrosPreenchidos);
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50">
+      <div className="relative w-full max-w-md p-4 h-full md:h-auto">
+        <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
+          <div className="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Pesquisar Planos Cancelados
+            </h3>
+            <button
+              type="button"
+              className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+              onClick={onClose}
+            >
+              <svg
+                aria-hidden="true"
+                className="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <form onSubmit={handleSubmitPesquisar} className="p-4 space-y-4">
+            <div>
+              <label htmlFor="cpf" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                CPF
+              </label>
+              <input
+                type="text"
+                id="cpf"
+                name="cpf"
+                value={filtros.cpf}
+                onChange={handleChange}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                placeholder="CPF"
+              />
+            </div>
+            <div>
+              <label htmlFor="nomeUsuario" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Nome do Usuário
+              </label>
+              <input
+                type="text"
+                id="nomeUsuario"
+                name="nomeUsuario"
+                value={filtros.nomeUsuario}
+                onChange={handleChange}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                placeholder="Nome do Usuário"
+              />
+            </div>
+            <div>
+              <label htmlFor="protocolo" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Protocolo
+              </label>
+              <input
+                type="text"
+                id="protocolo"
+                name="protocolo"
+                value={filtros.protocolo}
+                onChange={handleChange}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                placeholder="Protocolo"
+              />
+            </div>
+            <div>
+              <label htmlFor="canceladoPor" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Cancelado Por
+              </label>
+              <input
+                type="text"
+                id="canceladoPor"
+                name="canceladoPor"
+                value={filtros.canceladoPor}
+                onChange={handleChange}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                placeholder="Cancelado Por"
+              />
+            </div>
+            <div>
+              <label htmlFor="motivoCancelamento" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Motivo Cancelamento
+              </label>
+              <select
+                id="motivoCancelamento"
+                name="motivoCancelamento"
+                value={filtros.motivoCancelamento}
+                onChange={handleChange}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+              >
+                <option value={0}>Selecione o Motivo do Cancelamento</option>
+                {Object.entries(motivoCancelamentoMap).map(([key, value]) => (
+                  <option key={key} value={key}>{value}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="situacaoPlano" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Situação do Plano
+              </label>
+              <select
+                id="situacaoPlano"
+                name="situacaoPlano"
+                value={filtros.situacaoPlano}
+                onChange={handleChange}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+              >
+                <option value={0}>Selecione a Situação do Plano</option>
+                {Object.entries(planoSituacaoMap).map(([key, value]) => (
+                  <option key={key} value={key}>{value}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="ordenarPorRecente"
+                name="ordenarPorRecente"
+                checked={filtros.ordenarPorRecente}
+                onChange={(e) => setFiltros({ ...filtros, ordenarPorRecente: e.target.checked })}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="ordenarPorRecente" className="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                Ordenar por Recente
+              </label>
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Pesquisar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Inicio() {
   const [isModalOpen1, setisModalOpen1] = useState(false);
   const [isModalOpen2, setisModalOpen2] = useState(false);
+  const [isModalPesquisaOpen, setisModalPesquisaOpen] = useState(false);
   const [planosCancelados, setPlanosCancelados] = useState<PlanoCancelado[]>([]);
   const [selectedPlano, setSelectedPlano] = useState<PlanoCancelado | null>(null);
   const [error, setError] = useState('');
@@ -112,6 +289,16 @@ export default function Inicio() {
   const toggleModal2 = (plano: PlanoCancelado) => {
     setSelectedPlano(plano);
     setisModalOpen2(!isModalOpen2);
+  };
+
+  const openModalPesquisa = () => {
+    console.log('Abrindo modal de pesquisa');
+    setisModalPesquisaOpen(true);
+  };
+
+  const closeModalPesquisa = () => {
+    console.log('Fechando modal de pesquisa');
+    setisModalPesquisaOpen(false);
   };
 
   useEffect(() => {
@@ -171,6 +358,26 @@ export default function Inicio() {
     }
   };
 
+  const handlePesquisar = (filtros: any) => {
+    console.log('Pesquisando com filtros:', filtros);
+    usuarioService.listarPlanosCanceladosFiltrados(filtros)
+      .then(response => {
+        console.log("Resposta da API:", response.data);
+        const data = response.data;
+        if (data && Array.isArray(data)) {
+          setPlanosCancelados(data);
+          setTotalPages(1); 
+        } else {
+          console.error("Estrutura inesperada da resposta:", data);
+          setError('Estrutura inesperada da resposta. Verifique o console para mais detalhes.');
+        }
+      })
+      .catch(error => {
+        console.error("Erro ao buscar os planos cancelados:", error.response ? error.response.data : error.message);
+        setError('Erro ao buscar os planos cancelados. Verifique o console para mais detalhes.');
+      });
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
@@ -214,6 +421,9 @@ export default function Inicio() {
                   <h3 className="flex flex-col items-center justify-center m-2 ml-0 font-medium text-xl/tight text-dark">
                     <span className="mr-3 font-semibold text-amber-300">Planos Cancelados Via Admin</span>
                   </h3>
+                  <button onClick={openModalPesquisa} className="inline-block rounded-lg px-5 py-2 text-sm font-medium text-white ">
+                  <Search />
+                  </button>
                 </div>
                 <div className="flex-auto block py-8 pt-6 px-9 dark:text-white">
                   {error && <p className="text-red-500 text-center">{error}</p>}
@@ -343,7 +553,7 @@ export default function Inicio() {
           </div>
         </div>
         {isModalOpen1 && selectedPlano && (
-          <div className="flex overflow-y-auto overflow-x-hidden fixed top-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full" id="modal">
+          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50" id="modal">
             <div role="alert" className="container mx-auto w-11/12 md:w-2/3 max-w-lg">
               <div className="relative py-8 px-5 md:px-10 bg-white shadow-md rounded border dark:bg-gray-800">
                 <div className="w-full flex justify-start text-gray-600 mb-3">
@@ -378,7 +588,7 @@ export default function Inicio() {
           </div>
         )}
         {isModalOpen2 && selectedPlano && (
-          <div className="flex overflow-y-auto overflow-x-hidden fixed top-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full" id="modal">
+          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50" id="modal">
             <div role="alert" className="container mx-auto w-11/12 md:w-2/3 max-w-lg">
               <div className="relative py-8 px-5 md:px-10 bg-white shadow-md rounded border dark:bg-gray-800">
                 <div className="w-full flex justify-start text-gray-600 mb-3">
@@ -423,6 +633,12 @@ export default function Inicio() {
               </div>
             </div>
           </div>
+        )}
+        {isModalPesquisaOpen && (
+          <ModalPesquisa
+            onClose={closeModalPesquisa}
+            onPesquisar={handlePesquisar}
+          />
         )}
       </div>
     </div>

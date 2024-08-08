@@ -237,7 +237,7 @@ export default function FuncionariosToList() {
         </div>
 
         {isModalOpen1 && selectedAtendente && (
-          <div id="authentication-modal" tabIndex={-1} aria-hidden="true" className=" flex overflow-y-auto overflow-x-hidden fixed top-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+          <div id="authentication-modal" tabIndex={-1} aria-hidden="true" className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50">
             <div className="relative p-4 w-full max-w-md max-h-full">
               <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
                 <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
@@ -284,7 +284,7 @@ export default function FuncionariosToList() {
 
         {isModalOpen2 && selectedAtendente && (
           <div id="modal">
-            <div id="popup-modal" className="flex overflow-y-auto overflow-x-hidden fixed top-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div id="popup-modal" className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50">
               <div className="relative p-4 w-full max-w-md max-h-full">
                 <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
                   <button type="button" className="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="popup-modal" onClick={() => setisModalOpen2(false)}>
@@ -310,7 +310,7 @@ export default function FuncionariosToList() {
         )}
 
         {isModalOpen3 && (
-          <div id="authentication-modal" tabIndex={-1} aria-hidden="true" className="flex overflow-y-auto overflow-x-hidden fixed top-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+          <div id="authentication-modal" tabIndex={-1} aria-hidden="true" className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50">
             <div className="relative p-4 w-full max-w-md max-h-full">
               <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
                 <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
