@@ -16,7 +16,7 @@ export class UsuarioService {
   editarPlanoMotivoCancelamento(data: { id: number; cpfAtendente: string; des_MotivoCancelamento: string; idf_OrigemMotivoCancelamento: number; }) {
     return axiosInstance.post('https://testing-apibnereports.bne.com.br/ReportsBNE/PlanoMotivoCancelamento/EditarPlanoMotivoCancelamento', data);
   }
-  listarPlanosCanceladosFiltrados(filtros: { cpf: string; nomeUsuario: string; protocolo: number; canceladoPor: string; ordenarPorRecente: boolean; motivoCancelamento: number; situacaoPlano: number }) {
+  listarPlanosCanceladosFiltrados(filtros: { cpf: string; nomeUsuario: string; protocolo: number; canceladoPor: string; ordenarPorRecente: boolean; motivoCancelamento: number; situacaoPlano: number; }, page: number, p0: number) {
     return axiosInstance.post('https://testing-apibnereports.bne.com.br/ReportsBNE/PlanoMotivoCancelamento/ListarPlanoCanceladosFiltrados', filtros);
   }
   fetchAtendentes() {

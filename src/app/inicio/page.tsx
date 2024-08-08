@@ -68,13 +68,14 @@ interface PlanoCancelado {
     plano: {
       des_Plano: string;
     };
-    usuarioFilialPerfil: {
-      pessoaFisica: {
-        idf_PessoaFisica: string;
-        nome: string;
-        email: string;
-        cpf: string;
-      };
+    
+  };
+  usuarioFilialPerfil: {
+    pessoaFisica: {
+      idf_PessoaFisica: string;
+      nome: string;
+      email: string;
+      cpf: string;
     };
   };
   motivoCancelamento: {
@@ -86,7 +87,7 @@ interface PlanoCancelado {
 
 const ModalPesquisa: FC<{
   onClose: () => void;
-  onPesquisar: (filtros: any) => void;
+  onPesquisar: (filtros: any, page: number) => void;
 }> = ({ onClose, onPesquisar }) => {
   const [filtros, setFiltros] = useState({
     cpf: '',
@@ -111,8 +112,10 @@ const ModalPesquisa: FC<{
     const filtrosPreenchidos = Object.fromEntries(
       Object.entries(filtros).filter(([_, v]) => v !== '' && v !== 0)
     );
-    onPesquisar(filtrosPreenchidos);
+    onPesquisar(filtrosPreenchidos, 1); 
+    onClose();
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50">
       <div className="relative w-full max-w-md p-4 h-full md:h-auto">
@@ -272,6 +275,7 @@ export default function Inicio() {
   const [motivoCancelamento, setMotivoCancelamento] = useState('');
   const [origemCancelamento, setOrigemCancelamento] = useState('');
   const [isGerente, setIsGerente] = useState(false);
+  const [filtrosAtuais, setFiltrosAtuais] = useState({});
   const router = useRouter();
 
   useEffect(() => {
@@ -327,6 +331,7 @@ export default function Inicio() {
   const handlePageChange = (newPage: number) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
+      handlePesquisar(filtrosAtuais, newPage);
     }
   };
 
@@ -358,15 +363,16 @@ export default function Inicio() {
     }
   };
 
-  const handlePesquisar = (filtros: any) => {
+  const handlePesquisar = (filtros: any, page: number) => {
+    setFiltrosAtuais(filtros);
     console.log('Pesquisando com filtros:', filtros);
-    usuarioService.listarPlanosCanceladosFiltrados(filtros)
+    usuarioService.listarPlanosCanceladosFiltrados(filtros, page, 10)
       .then(response => {
         console.log("Resposta da API:", response.data);
         const data = response.data;
         if (data && Array.isArray(data)) {
           setPlanosCancelados(data);
-          setTotalPages(1); 
+          setTotalPages(Math.ceil(data.length / 10));
         } else {
           console.error("Estrutura inesperada da resposta:", data);
           setError('Estrutura inesperada da resposta. Verifique o console para mais detalhes.');
@@ -422,7 +428,7 @@ export default function Inicio() {
                     <span className="mr-3 font-semibold text-amber-300">Planos Cancelados Via Admin</span>
                   </h3>
                   <button onClick={openModalPesquisa} className="inline-block rounded-lg px-5 py-2 text-sm font-medium text-white ">
-                  <Search />
+                  <Search className='text-gray-900 dark:text-white'/>
                   </button>
                 </div>
                 <div className="flex-auto block py-8 pt-6 px-9 dark:text-white">
@@ -469,13 +475,13 @@ export default function Inicio() {
                                 <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{plano.nme_Atendente || "N/A"}</span>
                               </td>
                               <td className="pr-0 text-center">
-                                <span className="font-semibold text-light-inverse text-md/normal">{plano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.nome || "N/A"}</span>
+                                <span className="font-semibold text-light-inverse text-md/normal">{plano.usuarioFilialPerfil?.pessoaFisica?.nome || "N/A"}</span>
                               </td>
                               <td className="p-3 pr-0 text-center">
-                                <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{plano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.email || "N/A"}</span>
+                                <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{plano.usuarioFilialPerfil?.pessoaFisica?.email || "N/A"}</span>
                               </td>
                               <td className="p-3 pr-0 text-center">
-                                <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{plano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.cpf || "N/A"}</span>
+                                <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{plano.usuarioFilialPerfil?.pessoaFisica?.cpf || "N/A"}</span>
                               </td>
                               <td className="p-3 pr-0 text-center">
                                 <span className="text-center align-baseline inline-flex px-4 py-3 mr-auto items-center font-semibold text-[.95rem] leading-none text-primary bg-primary-light rounded-lg">{planoSituacaoMap[plano.planoAdquirido?.idf_PlanoSituacao] || "N/A"}</span>
@@ -569,9 +575,9 @@ export default function Inicio() {
                 <p>Data de Cancelamento do Plano: {selectedPlano.planoAdquirido?.dataCancelamento || "N/A"}</p>
                 <p>Data de fim do plano: {selectedPlano.planoAdquirido?.dataFimPlano || "N/A"}</p>
                 <p>Cancelado Por: {selectedPlano.nme_Atendente || "N/A"}</p>
-                <p>Nome do Candidato: {selectedPlano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.nome || "N/A"}</p>
-                <p>Email do Candidato: {selectedPlano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.email || "N/A"}</p>
-                <p>CPF do Candidato: {selectedPlano.planoAdquirido.usuarioFilialPerfil?.pessoaFisica?.cpf || "N/A"}</p>
+                <p>Nome do Candidato: {selectedPlano.usuarioFilialPerfil?.pessoaFisica?.nome || "N/A"}</p>
+                <p>Email do Candidato: {selectedPlano.usuarioFilialPerfil?.pessoaFisica?.email || "N/A"}</p>
+                <p>CPF do Candidato: {selectedPlano.usuarioFilialPerfil?.pessoaFisica?.cpf || "N/A"}</p>
                 <p>Motivo Cancelamento: {selectedPlano.motivoCancelamento?.des_MotivoCancelamento || "N/A"}</p>
                 <p>Detalhe do motivo de Cancelamento: {selectedPlano?.des_DetalheMotivoCancelamento || "N/A"}</p>
                 <p>Situação do Plano: {planoSituacaoMap[selectedPlano.planoAdquirido?.idf_PlanoSituacao] || "N/A"}</p>
