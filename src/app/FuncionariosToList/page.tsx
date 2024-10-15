@@ -1,10 +1,11 @@
 'use client'
-import {  Menu, UserX } from "lucide-react";
+import {  LogOut, Menu, User, UserX } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { ModeToggle } from "../components/toggle";
 import Logo from '../imgs/reports__4_-removebg-preview.png';
 import { UsuarioService } from "../../../service/Service";
+import { useTheme } from "next-themes";
 
 const usuarioService = new UsuarioService();
 
@@ -29,7 +30,23 @@ export default function FuncionariosToList() {
   const [dataNascimento, setDataNascimento] = useState('');
   const [role, setRole] = useState('');
   const [error, setError] = useState('');
+  const [isGerente, setIsGerente] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { theme } = useTheme(); 
   const router = useRouter();
+
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('cpf');
+    localStorage.removeItem('user');
+    router.push('/');
+  };
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
 
   useEffect(() => {
     const userRole = localStorage.getItem('role');
@@ -125,13 +142,6 @@ export default function FuncionariosToList() {
         });
     }
   };
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    localStorage.removeItem('cpf');
-    localStorage.removeItem('user');
-    router.push('/');
-  };
   return (
     <div className="flex flex-col h-full bg-gray-100 dark:bg-gray-800 dark:text-white">
       <nav className="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
@@ -143,13 +153,39 @@ export default function FuncionariosToList() {
           <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
             <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
               <li>
-                <a href="/inicio" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" aria-current="page"><Menu className="mr-2"/>Inicio</a>
-              </li>
-              <li>
-                <button onClick={handleLogout} className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><UserX className="mr-2" />Encerrar Sessão</button>
+                <a href="/inicio"><button
+                className="flex items-center p-2.5 py-2.5 dark:bg-gray-800 bg-white rounded-full  focus:outline-none focus:ring-2 focus:ring-gray-600 rounded-full border"
+              >
+                <Menu className="w-5 h-5" />
+              </button></a>
+              
               </li>
               <li>
                 <ModeToggle />
+              </li>
+              <li>
+              <button
+                onClick={toggleDropdown}
+                className="flex items-center p-2.5 py-2.5 dark:bg-gray-800 bg-white rounded-full  focus:outline-none focus:ring-2 focus:ring-gray-600 rounded-full border"
+              >
+                <User className="w-5 h-5" />
+              </button>
+
+              {dropdownOpen && (
+                <div className={`absolute right-0 mt-2 w-48 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg`}>
+                  <ul className="py-1">
+                    <li>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-4 py-2 text-left dark:text-white dark:hover:bg-gray-700 text-gray-900 hover:bg-gray-100"
+                      >
+                        <LogOut className="w-5 h-5 mr-2" />
+                        Encerrar Sessão
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
               </li>
             </ul>
           </div>
@@ -178,13 +214,13 @@ export default function FuncionariosToList() {
                   {error && <p className="text-red-500 text-center">{error}</p>}
                   <div className="overflow-x-auto">
                     <table className="w-full my-0 align-middle text-dark border-neutral-200 dark:bg-gray-900 dark:text-white">
-                      <thead className="align-bottom">
-                        <tr className="font-semibold text-[0.95rem] text-secondary-dark">
-                          <th className="pb-3 text-center min-w-fit">Nome</th>
-                          <th className="pb-3 text-center min-w-fit">Email</th>
-                          <th className="pb-3 text-center min-w-fit">CPF</th>
-                          <th className="pb-3 text-center min-w-fit">Data de Nascimento</th>
-                          <th className="pb-3 text-center min-w-fit">Ações</th>
+                    <thead className="bg-gray-700 text-gray-300 rounded-t-lg">
+                        <tr className="font-semibold text-[0.95rem]">
+                          <th className="px-4 py-3 text-center min-w-fit rounded-l-lg">Nome</th>
+                          <th className="px-4 py-3 text-center min-w-fit">Email</th>
+                          <th className="px-4 py-3 text-center min-w-fit">CPF</th>
+                          <th className="px-4 py-3 text-center min-w-fit">Data de Nascimento</th>
+                          <th className="px-4 py-3 text-center min-w-fit rounded-r-lg">Ações</th>
                         </tr>
                       </thead>
                       <tbody>
